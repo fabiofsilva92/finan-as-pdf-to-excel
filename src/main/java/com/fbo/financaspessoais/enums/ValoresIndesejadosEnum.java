@@ -2,7 +2,8 @@ package com.fbo.financaspessoais.enums;
 
 public enum ValoresIndesejadosEnum implements Valuable{
     EMISSAO_E_ENVIO("EMISSÃO E ENVIO"),
-    INCLUSAO_PAGAMENTO("Inclusao de Pagamento");
+    INCLUSAO_PAGAMENTO("Inclusao de Pagamento"),
+    VALORES_EM_REAIS("VALORES EM R$");
 
     private final String value;
 

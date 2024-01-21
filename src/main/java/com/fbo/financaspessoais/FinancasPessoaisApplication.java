@@ -61,6 +61,22 @@ public class FinancasPessoaisApplication {
 //		}
 //	}
 
+//	public static void main(String[] args) throws IOException {
+//		testarWhile();
+//	}
+//
+//	public static void testarWhile(){
+//
+//		var i = 0;
+//
+//		while( i < 5 ){
+//			System.out.println(i);
+//			i = i +1;
+//		}
+//		System.out.println("Saiu do while e meu i = "+i);
+//
+//	}
+
 
 	public static void proccessPDF() throws IOException {
 
