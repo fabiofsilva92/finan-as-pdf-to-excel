@@ -1,44 +1,44 @@
 package com.fbo.financaspessoais.service;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import com.fbo.financaspessoais.enums.PatternsEnum;
+import com.fbo.financaspessoais.util.SharedInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ExcelProcessService {
 
-    //TODO, mandar gastos para planilha
 
-//    public static void main(String[] args) throws IOException {
-//        setupNewExcelFile();
-//    }
+    public byte[] setupNewExcelFile(List<List<String>> listaCartao){
 
-//    public static void setupNewExcelFile(List<String> dados){
-    public void setupNewExcelFile(List<String> dados){
-        List<List<String>> listaCartao = new ArrayList<>();
+        //TODO Ajustar nao precisa mais da logica abaixo
+//        mesFrequente = getMesMaisFrequente(dados);
 
-        dados.forEach(d -> {
-            listaCartao.add(processarDado(d));
-        });
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet(SharedInfo.getMesDaFatura());
 
+        XSSFColor myColor = new XSSFColor(new java.awt.Color(153, 255, 153), null); // Exemplo: Cor verde
 
+        XSSFCellStyle greenStyle = workbook.createCellStyle();
+        greenStyle.setFillForegroundColor(myColor);
+        greenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        String caminhoRelativo = "src/main/resources/static/seuArquivo2.xlsx";
-//
-        Workbook workbook = new XSSFWorkbook(); // Use XSSFWorkbook para formatos .xlsx
-//
-//        // Adicionar planilhas conforme necessário
-        Sheet sheet = workbook.createSheet("DEZ");
+        NumberFormat formatador = NumberFormat.getInstance(new Locale("pt", "BR"));
+
 
         for(int i = 0; i < listaCartao.size(); i++){
             Row row = sheet.createRow(i);
@@ -49,59 +49,35 @@ public class ExcelProcessService {
             cellEstabelecimento.setCellValue(listaCartao.get(i).get(1));
 
             Cell cellValor = row.createCell(2);
-            cellValor.setCellValue(listaCartao.get(i).get(2));
-        }
+            try{
+                Number numero = formatador.parse(listaCartao.get(i).get(2));
+                double valor = numero.doubleValue();
+                cellValor.setCellValue(valor);
+            } catch (ParseException e) {
+                log.error("Error parsing values {}",listaCartao.get(i).get(2));
+                cellValor.setCellValue(listaCartao.get(i).get(2));
+            }
 
-        try (FileOutputStream fileOut = new FileOutputStream(caminhoRelativo)) {
-            workbook.write(fileOut);
-            System.out.println("Novo arquivo Excel criado com sucesso.");
+            if(listaCartao.get(i).get(2).contains("-")){
+                cellValor.setCellStyle(greenStyle);
+            }
+        }
+        //Soma dos valores
+        int numeroDeLinhas = listaCartao.size();
+        Row rowTotal = sheet.createRow(numeroDeLinhas+1);
+        rowTotal.createCell(1).setCellValue("TOTAL");
+        Cell cellSoma = rowTotal.createCell(2);
+        String referenciaColuna = "C"; // Coluna de valores
+        cellSoma.setCellFormula("SUM(" + referenciaColuna + "1:" + referenciaColuna + numeroDeLinhas + ")");
+
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();) {
+            workbook.write(outputStream);
+            log.info("Novo arquivo Excel criado com sucesso.");
+            return outputStream.toByteArray();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
-
-    private List<String> processarDado(String dado) {
-        String patternString = "(\\d{2}\\s(?:JAN|FEV|MAR|ABR|MAI|JUN|JUL|AGO|SET|OUT|NOV|DEZ))(.*)";
-        Pattern pattern = Pattern.compile(patternString);
-        Matcher matcher = pattern.matcher(dado);
-        String data = "";
-        String segundaParte = "";
-
-        if (matcher.find()) {
-            data = matcher.group(1);
-            segundaParte = matcher.group(2).trim();
-
-        } else {
-            System.out.println("String não corresponde ao padrão esperado.");
-//            throw new RuntimeException("String não corresponde ao padrão esperado.");
-        }
-        return processarSegundaParte(data, segundaParte);
-    }
-
-    private List<String> processarSegundaParte(String data, String segundaParte) {
-        String parte1Pattern = "(.*?)(\\d+,\\d+)";
-        Pattern parte1PatternRegex = Pattern.compile(parte1Pattern);
-        Matcher parte1Matcher = parte1PatternRegex.matcher(segundaParte);
-        String parte1 = "";
-        String parte2 = "";
-
-        if (parte1Matcher.find()) {
-            parte1 = parte1Matcher.group(1).trim();
-            parte2 = parte1Matcher.group(2).trim();
-
-        } else {
-            System.out.println("Não corresponde ao padrão esperado na segunda parte: " + segundaParte);
-//            throw new RuntimeException("Não corresponde ao padrão esperado na segunda parte: " + segundaParte);
-        }
-        return List.of(data, parte1, parte2);
-    }
-
-    private static void imprimirResultado(String data, String estabelecimento, String valor) {
-        System.out.println("Data: " + data);
-        System.out.println("Estabelecimento: " + estabelecimento);
-        System.out.println("Valor: " + valor);
-        System.out.println();
-    }
-
 
 }
