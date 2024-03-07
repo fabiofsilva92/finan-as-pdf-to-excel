@@ -40,24 +40,36 @@ public class PDFProcessService {
     private NubankExtractorHelper nubankExtractorHelper;
 
 
+    /**
+     * Process the PDF file based on the specified bank.
+     *
+     * @param file The PDF file to process
+     * @param bank The bank name
+     * @return The processed PDF file as byte array
+     * @throws RuntimeException if the bank is not recognized
+     */
     public byte[] processPDF(MultipartFile file, String bank){
-        List<String> linesWithValues = new ArrayList<>();
 
+        // Initialize list to hold extracted strings from PDF
+        List<List<String>> strings = new ArrayList<>();
+
+        // Process PDF based on the specified bank
         switch (BankEnum.fromValue(bank)){
             case C6 :
                 bankUtil = BankEnum.C6;
                 log.info("Starting process -> C6 bank bill");
-                List<List<String>> strings = c6ExtractorHelper.extrairLinhasComValores(file);
+                strings = c6ExtractorHelper.extrairLinhasComValores(file);
                 log.info("Successful reading PDF");
-                byte[] bytes = excelProcessService.setupNewExcelFile(strings);
-                return bytes;
+                // Process the extracted strings and return the result
+                return excelProcessService.setupNewExcelFile(strings);
             case NUBANK:
                 bankUtil = BankEnum.NUBANK;
                 log.info("Starting process -> NUBANK bank bill");
-                List<List<String>> strings1 = nubankExtractorHelper.extrairLinhasComValores(file);
-                byte[] bytes2 = excelProcessService.setupNewExcelFile(strings1);
-                return bytes2;
+                strings = nubankExtractorHelper.extrairLinhasComValores(file);
+                // Process the extracted strings and return the result
+                return excelProcessService.setupNewExcelFile(strings);
             default:
+                // Throw an exception if the bank is not recognized
                 System.out.println("Falha no reconhecimento do banco");
                 throw new RuntimeException("falha");
         }

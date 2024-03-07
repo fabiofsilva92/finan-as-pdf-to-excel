@@ -17,12 +17,12 @@ public class FinancesController {
 
     @PostMapping("process")
     public ResponseEntity<byte[]> processFatura(@RequestPart("file") MultipartFile file,
-                                                      @RequestParam String bank){
-        byte[] bytes = processService.processPDF(file, bank);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", SharedInfo.getMesDaFatura() +"-Fatura-"+bank+".xlsx");
-        return ResponseEntity.ok().headers(headers).body(bytes);
+                                                @RequestParam String bank){
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + SharedInfo.getMesDaFatura() + "-Fatura-" + bank + ".xlsx")
+                .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
+                .body(processService.processPDF(file, bank));
     }
 
 }

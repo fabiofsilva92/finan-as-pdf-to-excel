@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public interface ExtractorHelper {
 
     public String getMesDaFaturaAnteriorDoVencimento(String mes);
-    public default List<List<String>> extrairLinhasComValores(MultipartFile file) {
+    public default List<List<String>> extrairLinhasComValores(MultipartFile file) throws RuntimeException {
         try{
             InputStream inputStream = file.getInputStream();
             StringBuffer sb = new StringBuffer();
@@ -51,8 +51,6 @@ public interface ExtractorHelper {
                     linhasComValores.add(matcher.group().toUpperCase());
             }
 
-//            retirarDescontos(linhasComValores);
-//            System.out.println("lista de dados -> "+linhasComValores);
             List<List<String>> listaCartao = new ArrayList<>();
 
             linhasComValores.forEach(d -> {
@@ -62,7 +60,7 @@ public interface ExtractorHelper {
 
             return listaCartao;
         }catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("e.getMessage()");
         }
     }
     public void extrairMesVencimentoETotal(String pageText);
@@ -84,9 +82,7 @@ public interface ExtractorHelper {
 
         if (matcher.find()) {
             data = matcher.group(1);
-//            System.out.println("DATA -> "+data);
             segundaParte = matcher.group(2).trim();
-//            System.out.println("SEGUNDA PARTE -> "+segundaParte);
 
         } else {
             System.out.println(("String não corresponde ao padrão esperado. -> "+dado));
@@ -101,7 +97,7 @@ public interface ExtractorHelper {
         String parte2 = "";
 
         if (estabValorMatcher.find()) {
-//            System.out.println("estabValorMatcher.group(0) -> " + estabValorMatcher.group(0));
+
             parte1 = estabValorMatcher.group(1).trim();
             parte2 = !parte1.toLowerCase().contains("desconto") ? estabValorMatcher.group(2).trim() : "-"+estabValorMatcher.group(2).trim();
 
