@@ -3,9 +3,10 @@ package com.fbo.financaspessoais.util;
 import com.fbo.financaspessoais.enums.PatternsEnum;
 import com.fbo.financaspessoais.enums.ValoresIndesejadosEnum;
 import com.fbo.financaspessoais.enums.Valuable;
+import com.fbo.financaspessoais.model.BillingRecord;
+import com.fbo.financaspessoais.model.dtos.BillingRegisterDto;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
@@ -13,12 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public interface ExtractorHelper {
 
     public String getMesDaFaturaAnteriorDoVencimento(String mes);
-    public default List<List<String>> extrairLinhasComValores(MultipartFile file) throws RuntimeException {
+    public default List<BillingRegisterDto> extrairLinhasComValores(MultipartFile file) throws RuntimeException {
         try{
             InputStream inputStream = file.getInputStream();
             StringBuffer sb = new StringBuffer();
@@ -51,16 +51,15 @@ public interface ExtractorHelper {
                     linhasComValores.add(matcher.group().toUpperCase());
             }
 
-            List<List<String>> listaCartao = new ArrayList<>();
+            List<BillingRegisterDto> listToReturn = new ArrayList<>();
 
             linhasComValores.forEach(d -> {
-                List<String> strings = processarDado(d);
-                listaCartao.add(strings);
+                listToReturn.add(processarDado(d));
             });
 
-            return listaCartao;
+            return listToReturn;
         }catch (Exception e) {
-            throw new RuntimeException("e.getMessage()");
+            throw new RuntimeException(e.getMessage());
         }
     }
     public void extrairMesVencimentoETotal(String pageText);
@@ -74,7 +73,7 @@ public interface ExtractorHelper {
         return false; // Não contém nenhum valor indesejado
     }
 
-    private List<String> processarDado(String dado) {
+    private BillingRegisterDto processarDado(String dado) {
         Pattern pattern = PatternsEnum.DATA_MAIS_DADOS.getPattern();
         Matcher matcher = pattern.matcher(dado);
         String data = "";
@@ -90,7 +89,7 @@ public interface ExtractorHelper {
         return processarSegundaParte(data, segundaParte);
     }
 
-    private List<String> processarSegundaParte(String data, String segundaParte) {
+    private BillingRegisterDto processarSegundaParte(String data, String segundaParte) {
         Pattern estabValorPattern = PatternsEnum.SEGUNDA_PARTE_VALOR.getPattern();
         Matcher estabValorMatcher = estabValorPattern.matcher(segundaParte);
         String parte1 = "";
@@ -104,7 +103,12 @@ public interface ExtractorHelper {
         } else {
             System.out.println("Não corresponde ao padrão esperado na segunda parte: " + segundaParte);
         }
-        return List.of(data, parte1, parte2);
+        //TODO ajustar para o BillingRecord
+
+        return BillingRegisterDto.builder()
+                .date(data)
+                .establishment(parte1)
+                .value(parte2).build();
     }
 
 

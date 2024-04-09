@@ -55,8 +55,6 @@ public class NubankExtractorHelper implements ExtractorHelper{
 
     @Override
     public void extrairMesVencimentoETotal(String pageText) {
-
-//        System.out.println("extrairMesVencimentoETotal -> pagetext = "+ pageText);
         setVencimento(pageText);
         setMesDaFatura(vencimento);
         setTotal(pageText);
@@ -69,7 +67,7 @@ public class NubankExtractorHelper implements ExtractorHelper{
 
         if (matcher.find()) {
             log.info("VENCIMENTO_NUBANK -> " +matcher.group(0));
-            this.vencimento = matcher.group(0);
+            this.vencimento = matcher.group(2);
             SharedInfo.setVencimento(matcher.group(0));
         }
     }
@@ -78,6 +76,7 @@ public class NubankExtractorHelper implements ExtractorHelper{
         Matcher matcher = PatternsEnum.MESES_ABREVIADO.getPattern().matcher(text);
         if(matcher.find()){
             log.info("MESES_ABREVIADO -> " +matcher.group(0));
+            SharedInfo.setMesDeVencimento(matcher.group(0));
             this.mesDaFatura = getMesDaFaturaAnteriorDoVencimento(matcher.group(0));
             SharedInfo.setMesDaFatura(this.mesDaFatura);
         }

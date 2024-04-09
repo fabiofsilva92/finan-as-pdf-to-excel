@@ -76,9 +76,10 @@ public class C6ExtractorHelper implements ExtractorHelper{
     public void setMesDaFatura(String text){
         Matcher matcher = PatternsEnum.MESES.getPattern().matcher(vencimento);
         if(matcher.find()){
+            log.info("MESES_ABREVIADO -> " +matcher.group(0));
+            SharedInfo.setMesDeVencimento(matcher.group(0));
             this.mesDaFatura = getMesDaFaturaAnteriorDoVencimento(matcher.group(0));
             SharedInfo.setMesDaFatura(this.mesDaFatura);
-            log.info("Encontrado MES -> "+ mesDaFatura);
         }
     }
 

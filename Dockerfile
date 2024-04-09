@@ -1,23 +1,23 @@
+# Use a official OpenJDK image as the base image
+FROM openjdk:17-jdk-slim as build
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the source code into the container
+COPY . .
+
+# For Maven:
+RUN ./mvnw clean package
+
+# Use OpenJDK 17 JRE for running the application
 FROM openjdk:17-jdk-slim
 
-RUN apt-get update && apt-get install -y maven
+# Copy the built application from the previous stage
+COPY --from=build /app/target/*.jar /app/application.jar
 
-COPY . /app/repo
-
-# Combinando cd e mvn clean install em uma única instrução RUN
-RUN cd /app/repo && mvn clean install
-
-# Ajustando o caminho para copiar o JAR construído para o diretório correto
-RUN mkdir -p /app/jar && cp /app/repo/target/*.jar /app/jar/myapp.jar
-
-RUN apt-get remove --purge -y maven && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /app/repo
-
-WORKDIR /app/jar
-
-# Expondo a porta 8080
+# Expose the port your app runs on
 EXPOSE 8080
 
-CMD ["java", "-jar", "myapp.jar"]
+# Command to run the application
+CMD ["java", "-jar", "/app/application.jar"]

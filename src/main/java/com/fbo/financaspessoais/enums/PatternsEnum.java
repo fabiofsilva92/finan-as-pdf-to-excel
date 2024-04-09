@@ -6,7 +6,7 @@ public enum PatternsEnum {
 
     VENCIMENTO_C6("Vencimento:\\s\\d{1,2}\\sde\\s(Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)"),
 
-    VENCIMENTO_NUBANK("Data do vencimento:\\s\\d{2}\\s(?i)(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)\\s\\d{4}"),
+    VENCIMENTO_NUBANK("(Data do vencimento:\\s)(\\d{2}\\s(?i)(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)\\s\\d{4})"),
     LINHA_COM_VALORES("\\d{2} (?i)(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez).*"),
     DATA_MAIS_DADOS("(\\d{2}\\s(?:JAN|FEV|MAR|ABR|MAI|JUN|JUL|AGO|SET|OUT|NOV|DEZ))(.*)"),
 //    SEGUNDA_PARTE_VALOR("(.*?)(\\d+,\\d+)"),

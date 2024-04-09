@@ -7,7 +7,17 @@ public class SharedInfo {
 
     private static String vencimento;
     private static String mesDaFatura;
+    private static String mesDeVencimento;
     private static String total;
+    private static String banco;
+
+    public static String getBanco() {
+        return banco;
+    }
+
+    public static void setBanco(String banco) {
+        SharedInfo.banco = banco;
+    }
 
     public static String getVencimento() {
         return vencimento;
@@ -31,5 +41,13 @@ public class SharedInfo {
 
     public static void setTotal(String total) {
         SharedInfo.total = total;
+    }
+
+    public static String getMesDeVencimento() {
+        return mesDeVencimento;
+    }
+
+    public static void setMesDeVencimento(String mesDeVencimento) {
+        SharedInfo.mesDeVencimento = mesDeVencimento;
     }
 }
