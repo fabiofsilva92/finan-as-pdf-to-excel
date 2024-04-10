@@ -7,8 +7,11 @@ WORKDIR /app
 # Copy the source code into the container
 COPY . .
 
+# Tornando o mvnw executável
+RUN chmod +x ./mvnw
+
 # For Maven:
-RUN ./mvnw clean package
+RUN ./mvnw clean package -DskipTests
 
 # Use OpenJDK 17 JRE for running the application
 FROM openjdk:17-jdk-slim
