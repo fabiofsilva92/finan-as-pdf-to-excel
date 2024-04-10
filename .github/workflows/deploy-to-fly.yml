@@ -14,7 +14,7 @@ jobs:
     - name: Login to Fly
       uses: superfly/flyctl-actions@1.1
       with:
-        args: "auth login --token ${{ secrets.FLY_API_TOKEN }}"
+        args: auth login --access-token ${{ secrets.FLY_API_TOKEN }}
     - name: Deploy to Fly.io
       uses: superfly/flyctl-actions@1.1
       with:
